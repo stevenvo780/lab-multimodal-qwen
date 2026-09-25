@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#101725">
+    <meta name="description" content="Atlas visual y bitácora local para aprender embeddings multimodales con Streamlit local y GPU en Kratos.">
+    <title>Atlas multimodal · laboratorio de embeddings</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="styles.css">
+    <script src="content.js" defer></script>
+    <script src="app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#contenido">Saltar al contenido</a>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Navegación principal">
+        <a class="brand" href="#inicio" aria-label="Atlas multimodal, inicio">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span><strong>ATLAS</strong><small>multimodal</small></span>
+        </a>
+        <div class="sidebar-label">APRENDE A TU RITMO</div>
+        <nav class="nav-list">
+          <a href="#inicio" class="nav-link active"><span class="nav-icon">⌂</span> Inicio</a>
+          <a href="#mapa" class="nav-link"><span class="nav-icon">◇</span> Mapa del flujo</a>
+          <a href="#catalogo" class="nav-link"><span class="nav-icon">▦</span> Conceptos</a>
+          <a href="#explorador" class="nav-link"><span class="nav-icon">⌁</span> Explorador</a>
+          <a href="#tomografia" class="nav-link"><span class="nav-icon">◎</span> Tomografía</a>
+          <a href="#casos" class="nav-link"><span class="nav-icon">♧</span> Casos prácticos</a>
+          <a href="#practicas" class="nav-link"><span class="nav-icon">▷</span> Prácticas</a>
+          <a href="#bitacora" class="nav-link"><span class="nav-icon">✎</span> Bitácora</a>
+          <a href="#glosario" class="nav-link"><span class="nav-icon">≡</span> Glosario</a>
+          <a href="#lab/inicio" class="nav-link nav-external"><span class="nav-icon">◉</span> Laboratorio</a>
+        </nav>
+        <div class="sidebar-bottom">
+          <div class="progress-head"><span>Tu recorrido</span><strong id="progressText">0/5</strong></div>
+          <div class="progress-track"><span id="progressFill"></span></div>
+          <small>El progreso y tus notas se guardan solo en este navegador.</small>
+        </div>
+      </aside>
+
+      <main id="contenido">
+        <header class="topbar">
+          <div class="breadcrumbs"><span>LABORATORIO PERSONAL</span><span class="breadcrumb-sep">/</span><span>Qwen3-VL Embedding</span></div>
+          <div class="top-actions">
+            <span class="connection" id="connectionStatus" role="status"><span class="status-dot"></span><span>Comprobando laboratorio…</span></span>
+            <a class="button button-primary button-small lab-link" id="topLabLink" href="#lab/inicio">Abrir laboratorio <span aria-hidden="true">→</span></a>
+          </div>
+        </header>
+
+        <div class="content-wrap" id="atlasView">
+          <section class="hero section" id="inicio" aria-labelledby="heroTitle">
+            <div class="hero-copy">
+              <p class="eyebrow"><span class="eyebrow-line"></span> TU MAPA PARA SEGUIR EL LABORATORIO</p>
+              <h1 id="heroTitle">De una imagen o frase a <em>una posición</em> en el espacio.</h1>
+              <p class="hero-lead">Explora cada idea con dibujos y pruebas pequeñas. Luego abre el laboratorio real, observa qué pasa y anota lo que entendiste para que podamos replicarlo.</p>
+              <div class="hero-actions">
+                <a class="button button-primary" href="#mapa">Empezar por el mapa <span aria-hidden="true">→</span></a>
+                <a class="button button-outline lab-link" href="#lab/inicio">Ir al laboratorio <span aria-hidden="true">→</span></a>
+              </div>
+              <div class="hero-meta"><span class="meta-spark">✦</span> 12 conceptos <span class="meta-divider">·</span> 5 experimentos <span class="meta-divider">·</span> tus notas, a mano</div>
+            </div>
+            <div class="hero-visual" aria-label="Ilustración de imágenes y textos ubicados juntos en un espacio vectorial" role="img">
+              <div class="visual-heading"><span>ESPACIO COMPARTIDO</span><span class="visual-live"><i></i> ESQUEMA</span></div>
+              <svg viewBox="0 0 480 330" aria-hidden="true" class="hero-svg">
+                <defs><pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M 32 0 L 0 0 0 32" fill="none" stroke="#344359" stroke-width=".7"/></pattern><linearGradient id="glow" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#72e4c7"/><stop offset="1" stop-color="#9b8cf9"/></linearGradient></defs>
+                <rect x="0" y="0" width="480" height="330" fill="url(#grid)" opacity=".53"/>
+                <path d="M60 273 C130 223 145 251 203 204 S320 147 425 95" fill="none" stroke="url(#glow)" stroke-width="1.5" stroke-dasharray="5 8" opacity=".5"/>
+                <circle cx="125" cy="102" r="62" fill="#80e8c2" opacity=".055"/><circle cx="332" cy="213" r="70" fill="#a792ff" opacity=".055"/>
+                <path d="M188 103 L218 126 M282 230 L295 213" stroke="#7e8ca3" stroke-dasharray="4 5" opacity=".6"/>
+                <g class="point-float"><rect x="65" y="69" width="116" height="49" rx="13" fill="#1b3440" stroke="#4eae9a"/><text x="80" y="99" fill="#b7f7de" font-size="17">▧</text><text x="107" y="99" fill="#e0f4ef" font-size="14">gato.jpg</text></g>
+                <g class="point-float slow"><rect x="207" y="117" width="127" height="49" rx="13" fill="#203342" stroke="#5da496"/><text x="222" y="147" fill="#a0edcd" font-size="15">T</text><text x="245" y="147" fill="#e0f4ef" font-size="14">«un gato»</text></g>
+                <g class="point-float"><rect x="296" y="190" width="119" height="49" rx="13" fill="#302a47" stroke="#8269c2"/><text x="311" y="220" fill="#d1bcff" font-size="17">▧</text><text x="338" y="220" fill="#f1eaff" font-size="14">casa.jpg</text></g>
+                <g class="point-float slow"><rect x="162" y="207" width="118" height="49" rx="13" fill="#302a47" stroke="#8269c2"/><text x="177" y="237" fill="#d1bcff" font-size="15">T</text><text x="201" y="237" fill="#f1eaff" font-size="14">«una casa»</text></g>
+                <circle cx="187" cy="102" r="4" fill="#7ce0bf"/><circle cx="210" cy="124" r="4" fill="#7ce0bf"/><circle cx="294" cy="211" r="4" fill="#ab90ff"/><circle cx="282" cy="228" r="4" fill="#ab90ff"/>
+              </svg>
+              <div class="visual-caption"><span><i class="legend-dot mint"></i> Textos</span><span><i class="legend-dot violet"></i> Imágenes</span><span>cercanía ≈ parecido de significado</span></div>
+            </div>
+          </section>
+
+          <section class="section" id="mapa" aria-labelledby="mapaTitle">
+            <div class="section-heading"><div><p class="eyebrow">01 / VISIÓN GENERAL</p><h2 id="mapaTitle">Sigue el viaje de los datos</h2><p>Haz clic en cada etapa para abrir su concepto. Las dos entradas terminan como números comparables.</p></div><span class="section-stamp">MAPA INTERACTIVO</span></div>
+            <div class="flow-board">
+              <div class="flow-inputs">
+                <button class="flow-node" data-concept="multimodal"><span class="node-icon mint-bg">T</span><span><strong>Texto</strong><small>«un perro corriendo»</small></span></button>
+                <button class="flow-node" data-concept="multimodal"><span class="node-icon violet-bg">▧</span><span><strong>Imagen</strong><small>fotografía, dibujo…</small></span></button>
+              </div>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <button class="flow-node flow-core" data-concept="encoder"><span class="core-pulse">✳</span><span><strong>Codificador</strong><small>Qwen3-VL Embedding</small></span></button>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <button class="flow-node" data-concept="embedding"><span class="node-icon blue-bg">[ ]</span><span><strong>Vectores</strong><small>listas de números</small></span></button>
+              <span class="flow-arrow" aria-hidden="true">→</span>
+              <button class="flow-node" data-concept="espacio"><span class="node-icon amber-bg">⌁</span><span><strong>Espacio común</strong><small>comparar y buscar</small></span></button>
+            </div>
+            <div class="flow-note"><span>IDEA CLAVE</span><p>El modelo aprende a situar textos e imágenes relacionados cerca unos de otros. La distancia solo adquiere sentido dentro del espacio y la preparación de datos usados por ese modelo.</p></div>
+          </section>
+
+          <section class="section" id="catalogo" aria-labelledby="catalogoTitle">
+            <div class="section-heading"><div><p class="eyebrow">02 / CATÁLOGO VISUAL</p><h2 id="catalogoTitle">Los conceptos, uno a uno</h2><p>Busca por palabra o filtra por etapa. Cada ficha trae una pregunta que puedes llevar al laboratorio.</p></div><span class="section-stamp" id="conceptCount">12 FICHAS</span></div>
+            <div class="catalog-controls"><label class="search-box"><span aria-hidden="true">⌕</span><span class="sr-only">Buscar conceptos</span><input id="conceptSearch" type="search" placeholder="Buscar un concepto…" autocomplete="off"></label><div class="filter-list" id="conceptFilters" role="group" aria-label="Filtrar conceptos"></div></div>
+            <div class="concept-grid" id="conceptGrid"></div>
+            <p class="empty-state" id="conceptEmpty" hidden>No hay conceptos con ese filtro. Prueba otra palabra.</p>
+          </section>
+
+          <section class="section" id="explorador" aria-labelledby="exploradorTitle">
+            <div class="section-heading"><div><p class="eyebrow">03 / EXPERIMENTA AQUÍ</p><h2 id="exploradorTitle">Mueve vectores y observa</h2><p>Empieza por el coseno en 2D; después gira tres vectores en 3D para comparar sus relaciones.</p></div><span class="section-stamp">DEMOSTRACIÓN LOCAL</span></div>
+            <div class="demo-grid">
+              <div class="demo-panel">
+                <div class="panel-title"><span class="mini-icon">∠</span><div><h3>Similitud coseno</h3><p>¿En qué dirección apuntan dos vectores?</p></div></div>
+                <div class="vector-stage"><svg id="vectorSvg" viewBox="0 0 360 260" role="img" aria-label="Dos vectores que cambian con el ángulo"><defs><marker id="arrowA" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9" fill="none" stroke="#7ee6c3" stroke-width="1.8"/></marker><marker id="arrowB" markerWidth="9" markerHeight="9" refX="7" refY="4.5" orient="auto"><path d="M0 0 L9 4.5 L0 9" fill="none" stroke="#b3a0ff" stroke-width="1.8"/></marker></defs><path d="M25 130 H340 M180 245 V15" stroke="#53637a" stroke-width="1"/><circle cx="180" cy="130" r="94" fill="none" stroke="#54667d" stroke-dasharray="3 7"/><line id="vectorA" x1="180" y1="130" x2="274" y2="130" stroke="#7ee6c3" stroke-width="3" marker-end="url(#arrowA)"/><line id="vectorB" x1="180" y1="130" x2="270" y2="100" stroke="#b3a0ff" stroke-width="3" marker-end="url(#arrowB)"/><circle cx="180" cy="130" r="4" fill="#e9f4f2"/><text id="vectorALabel" x="281" y="133" fill="#93f0d0" font-size="15" font-weight="bold">A</text><text id="vectorBLabel" x="275" y="96" fill="#cbbdff" font-size="15" font-weight="bold">B</text></svg></div>
+                <div class="slider-row"><label for="angleSlider">Ángulo <strong id="angleValue">30°</strong></label><input id="angleSlider" type="range" min="0" max="180" value="30" step="1"></div>
+                <div class="slider-row"><label for="lengthSlider">Longitud de B <strong id="lengthValue">1.0×</strong></label><input id="lengthSlider" type="range" min="0.5" max="1.5" value="1" step="0.1"></div>
+                <div class="score-line"><span>cos(A, B)</span><strong id="cosineValue">0,866</strong><span id="cosineLabel" class="score-tag">muy parecido</span></div>
+                <p class="demo-caption" id="cosineExplanation"></p>
+              </div>
+              <div class="demo-panel">
+                <div class="panel-title"><span class="mini-icon purple">⌕</span><div><h3>Vecinos más próximos</h3><p>Selecciona una consulta y mira la clasificación.</p></div></div>
+                <div class="toy-disclaimer">Números inventados para aprender; no son resultados de Qwen.</div>
+                <label class="field-label" for="toyQuery">Consulta</label>
+                <select id="toyQuery" class="select-input"><option value="gato-texto">Texto: «un gato»</option><option value="casa-texto">Texto: «una casa»</option><option value="perro-imagen">Imagen: perro</option></select>
+                <div class="toy-map" id="toyMap" aria-label="Mapa esquemático de vectores"></div>
+                <div class="ranking-head"><span>RESULTADOS MÁS CERCANOS</span><span>SIMILITUD</span></div>
+                <div id="toyRanking" class="toy-ranking"></div>
+                <p class="demo-caption">En Streamlit local podrás probar ejemplos reales y comparar texto con imagen.</p>
+              </div>
+            </div>
+            <div class="tri-heading"><div><p class="eyebrow">TRES VECTORES · UNA MIRADA</p><h3>A, B y C en un espacio 3D</h3><p>Gira la vista y cambia la dirección espacial de cada flecha. Los ángulos y cosenos se calculan en 3D, aunque los veas en pantalla.</p></div><span class="section-stamp">3D INTERACTIVO</span></div>
+            <div class="tri-panel">
+              <div class="tri-stage">
+                <div class="tri-stage-label">ARRASTRA EL GRÁFICO PARA GIRAR LA CÁMARA</div>
+                <svg id="triSvg" viewBox="0 0 480 340" role="img" aria-label="Tres vectores tridimensionales A, B y C desde el origen con los ángulos AB, BC y AC">
+                  <defs><pattern id="triGrid" width="28" height="28" patternUnits="userSpaceOnUse"><path d="M 28 0 L 0 0 0 28" fill="none" stroke="#344d60" stroke-width=".7"/></pattern><marker id="triArrowA" markerWidth="8" markerHeight="8" refX="6.4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#82e9c8" stroke-width="1.8"/></marker><marker id="triArrowB" markerWidth="8" markerHeight="8" refX="6.4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#b8a2fb" stroke-width="1.8"/></marker><marker id="triArrowC" markerWidth="8" markerHeight="8" refX="6.4" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8" fill="none" stroke="#f1ce87" stroke-width="1.8"/></marker></defs>
+                  <rect width="480" height="340" fill="url(#triGrid)" opacity=".55"/><ellipse id="triGround" cx="240" cy="212" rx="138" ry="70" fill="#75bca713" stroke="#698f91" stroke-dasharray="4 7"/><line id="triAxisX" x1="240" y1="212" x2="380" y2="212" stroke="#64899b" stroke-width="1.5"/><line id="triAxisY" x1="240" y1="212" x2="170" y2="282" stroke="#64899b" stroke-width="1.5"/><line id="triAxisZ" x1="240" y1="212" x2="240" y2="72" stroke="#64899b" stroke-width="1.5"/><text id="triAxisLabelX" x="385" y="212" fill="#9db9c6" font-size="12">x</text><text id="triAxisLabelY" x="165" y="290" fill="#9db9c6" font-size="12">y</text><text id="triAxisLabelZ" x="246" y="70" fill="#9db9c6" font-size="12">z</text>
+                  <line id="triDiffAB" x1="390" y1="213" x2="240" y2="95" class="tri-difference" stroke="#75c9bc"/><line id="triDiffBC" x1="240" y1="95" x2="99" y2="172" class="tri-difference" stroke="#a593dd"/><line id="triDiffAC" x1="390" y1="213" x2="99" y2="172" class="tri-difference" stroke="#e9c680"/>
+                  <path id="triArcAB" fill="none" stroke="#7fdfc5" stroke-width="2.6"/><path id="triArcBC" fill="none" stroke="#b6a0f2" stroke-width="2.6"/><path id="triArcAC" fill="none" stroke="#edca85" stroke-width="2.6"/>
+                  <line id="triVectorA" x1="240" y1="254" x2="390" y2="213" stroke="#82e9c8" stroke-width="3" marker-end="url(#triArrowA)"/><line id="triVectorB" x1="240" y1="254" x2="240" y2="97" stroke="#b8a2fb" stroke-width="3" marker-end="url(#triArrowB)"/><line id="triVectorC" x1="240" y1="254" x2="99" y2="172" stroke="#f1ce87" stroke-width="3" marker-end="url(#triArrowC)"/>
+                  <circle cx="240" cy="185" r="4" fill="#f3faf9"/><text id="triLabelA" x="406" y="207" fill="#a9f5d9" font-size="16" font-weight="bold">A</text><text id="triLabelB" x="250" y="87" fill="#d3c2ff" font-size="16" font-weight="bold">B</text><text id="triLabelC" x="80" y="165" fill="#ffe4a8" font-size="16" font-weight="bold">C</text><text x="248" y="202" fill="#b0c3cc" font-size="11">origen</text>
+                </svg>
+                <div class="tri-camera"><span>Vista</span><button type="button" data-camera="left" aria-label="Girar cámara a la izquierda">↶</button><button type="button" data-camera="right" aria-label="Girar cámara a la derecha">↷</button><button type="button" data-camera="up" aria-label="Elevar cámara">↑</button><button type="button" data-camera="down" aria-label="Bajar cámara">↓</button><button type="button" data-camera="reset">Reiniciar</button></div>
+                <div class="tri-legend"><span><i class="legend-dot mint"></i>A</span><span><i class="legend-dot violet"></i>B</span><span><i class="legend-dot amber-dot"></i>C</span><span>líneas punteadas = diferencias</span></div>
+              </div>
+              <div class="tri-controls">
+                <div class="tri-control-head"><strong>Dirección de cada vector</strong><span>longitud fija = 1</span></div>
+                <div class="tri-presets" role="group" aria-label="Posiciones de ejemplo"><button type="button" data-tri-preset="separados">Separados</button><button type="button" data-tri-preset="cercanos">Cercanos</button><button type="button" data-tri-preset="opuestos">Opuestos</button></div>
+                <div class="tri-vector-controls"><strong class="tri-vector-name a">A <span>verde</span></strong><div class="slider-row"><label for="triSliderA">Azimut <strong id="triValueA">20°</strong></label><input id="triSliderA" type="range" min="-180" max="180" value="20" step="1" style="accent-color:#82e9c8"></div><div class="slider-row"><label for="triElevA">Elevación <strong id="triElevValueA">15°</strong></label><input id="triElevA" type="range" min="-80" max="80" value="15" step="1" style="accent-color:#82e9c8"></div></div>
+                <div class="tri-vector-controls"><strong class="tri-vector-name b">B <span>violeta</span></strong><div class="slider-row"><label for="triSliderB">Azimut <strong id="triValueB">100°</strong></label><input id="triSliderB" type="range" min="-180" max="180" value="100" step="1" style="accent-color:#b8a2fb"></div><div class="slider-row"><label for="triElevB">Elevación <strong id="triElevValueB">35°</strong></label><input id="triElevB" type="range" min="-80" max="80" value="35" step="1" style="accent-color:#b8a2fb"></div></div>
+                <div class="tri-vector-controls"><strong class="tri-vector-name c">C <span>ámbar</span></strong><div class="slider-row"><label for="triSliderC">Azimut <strong id="triValueC">−125°</strong></label><input id="triSliderC" type="range" min="-180" max="180" value="-125" step="1" style="accent-color:#f1ce87"></div><div class="slider-row"><label for="triElevC">Elevación <strong id="triElevValueC">25°</strong></label><input id="triElevC" type="range" min="-80" max="80" value="25" step="1" style="accent-color:#f1ce87"></div></div>
+                <div class="tri-table" aria-live="polite"><div class="tri-table-head"><span>PAR</span><span>ÁNGULO</span><span>COSENO</span><span>DIFERENCIA</span></div><div class="tri-table-row"><span class="pair ab">A ↔ B</span><span id="triAngleAB">70°</span><span id="triCosAB">0,342</span><span id="triDistanceAB">1,147</span></div><div class="tri-table-row"><span class="pair bc">B ↔ C</span><span id="triAngleBC">55°</span><span id="triCosBC">0,574</span><span id="triDistanceBC">0,924</span></div><div class="tri-table-row"><span class="pair ac">A ↔ C</span><span id="triAngleAC">125°</span><span id="triCosAC">−0,574</span><span id="triDistanceAC">1,774</span></div></div>
+                <p class="tri-formula">Para vectores de longitud 1: <strong>||A − B|| = √(2 − 2 cos ∠AB)</strong>. Si el ángulo crece, el coseno baja y la distancia entre puntas aumenta.</p>
+                <a class="button button-quiet tri-lab-link" href="#lab/aritmetica">Probar A − B + C con embeddings reales →</a>
+              </div>
+            </div>
+            <p class="tri-under-note">Demo local: vectores 3D unitarios de juguete; la vista rota sin cambiar sus ángulos. El módulo real construye una vista 3D de tres embeddings que conserva exactamente sus ángulos mutuos.</p>
+          </section>
+
+          <section class="section" id="tomografia" aria-labelledby="tomografiaTitle">
+            <div class="section-heading"><div><p class="eyebrow">04 / ENTRENAR, PREDECIR, INSPECCIONAR</p><h2 id="tomografiaTitle">Una tomografía del modelo y del espacio</h2><p>Inspeccionamos estados internos a lo largo de las capas y embeddings finales entre ejemplos. Después entrenamos una sonda pequeña sobre esos embeddings.</p></div><a class="button button-outline tomo-module-link" href="#lab/tomografia">Abrir módulo →</a></div>
+            <div class="pretrain-strip"><div class="pretrain-heading"><span>ANTES DEL LABORATORIO · PREENTRENAMIENTO DEL CODIFICADOR</span><a href="https://github.com/QwenLM/Qwen3-VL-Embedding/blob/main/assets/qwen3vlembedding_technical_report.pdf" target="_blank" rel="noopener noreferrer">Informe oficial ↗</a></div><div class="contrast-pairs"><div class="contrast-positive"><span>PAR RELACIONADO</span><strong>«un gato en el sofá» ↔ foto de ese gato</strong></div><span class="contrast-versus">frente a</span><div class="contrast-negative"><span>DISTRACTORES</span><strong>foto de una bicicleta · foto de una casa</strong></div></div><p>Como ejemplo conceptual del entrenamiento contrastivo descrito para Qwen3-VL-Embedding, una pérdida tipo <strong>InfoNCE</strong> favorece la pareja relacionada frente a distractores. Esa etapa ajustó el codificador antes de este laboratorio. Aquí lo usamos congelado y entrenamos solo una sonda con etiquetas.</p></div>
+            <div class="phase-grid" aria-label="Comparación entre entrenamiento y predicción">
+              <article class="phase-card train-card">
+                <div class="phase-heading"><span class="phase-number">01</span><div><span class="phase-kicker">CON EJEMPLOS ETIQUETADOS</span><h3>Entrenamiento de la sonda</h3></div></div>
+                <p>La sonda aprende a asociar embeddings con etiquetas. El codificador Qwen ya está preparado y sus pesos permanecen congelados.</p>
+                <div class="phase-pipeline" aria-label="Ejemplos etiquetados, Qwen congelado, sonda ajustable">
+                  <div class="phase-node"><span class="phase-glyph">▧ T</span><strong>Ejemplos</strong><small>texto e imagen con etiqueta</small></div><span class="phase-arrow" aria-hidden="true">→</span>
+                  <div class="phase-node frozen"><span class="phase-glyph">✳</span><strong>Qwen</strong><small>pesos congelados</small></div><span class="phase-arrow" aria-hidden="true">→</span>
+                  <div class="phase-node probe"><span class="phase-glyph">◎</span><strong>Sonda</strong><small>pesos ajustables</small></div>
+                </div>
+                <div class="phase-result"><span class="phase-loop" aria-hidden="true">↻</span><span>La predicción se compara con la etiqueta. La <strong>pérdida</strong> guía los cambios de la sonda en varias vueltas.</span></div>
+              </article>
+              <article class="phase-card predict-card">
+                <div class="phase-heading"><span class="phase-number">02</span><div><span class="phase-kicker">CON UN EJEMPLO NUEVO</span><h3>Predicción multimodal</h3></div></div>
+                <p>Una entrada nueva pasa por Qwen y por la sonda ya entrenada. Se obtiene una etiqueta estimada que puedes contrastar con el caso real.</p>
+                <div class="phase-pipeline" aria-label="Entrada nueva, Qwen congelado, sonda entrenada">
+                  <div class="phase-node"><span class="phase-glyph">▧ T</span><strong>Entrada</strong><small>texto o imagen nueva</small></div><span class="phase-arrow" aria-hidden="true">→</span>
+                  <div class="phase-node frozen"><span class="phase-glyph">✳</span><strong>Qwen</strong><small>mismo codificador</small></div><span class="phase-arrow" aria-hidden="true">→</span>
+                  <div class="phase-node probe"><span class="phase-glyph">◎</span><strong>Sonda</strong><small>pesos ya aprendidos</small></div>
+                </div>
+                <div class="phase-result"><span class="phase-loop" aria-hidden="true">→</span><span>La salida es una <strong>predicción</strong>. Aquí no se cambian pesos: observas aciertos y errores.</span></div>
+              </article>
+            </div>
+            <div class="frozen-note"><span aria-hidden="true">⌁</span><p><strong>Qué se entrena aquí:</strong> un clasificador pequeño sobre embeddings congelados. No estamos reentrenando ni ajustando el modelo base Qwen.</p></div>
+            <div class="scan-board">
+              <div class="scan-intro"><p class="eyebrow">TOMOGRAFÍA DE REPRESENTACIONES</p><h3>Del interior a los resultados</h3><p>«Tomografía» es una metáfora. Miramos estadísticas de capas internas para una entrada y mapas de embeddings finales entre ejemplos; añadimos la pérdida y los errores de la sonda.</p>
+                <div class="scan-controls" role="group" aria-label="Elegir vista de la tomografía">
+                  <button type="button" class="scan-control active" data-scan-view="capas" aria-pressed="true"><span>01</span><strong>Capas internas</strong><small>¿Cómo cambia una entrada?</small></button>
+                  <button type="button" class="scan-control" data-scan-view="mapa" aria-pressed="false"><span>02</span><strong>Mapa de ejemplos</strong><small>¿Qué queda cerca?</small></button>
+                  <button type="button" class="scan-control" data-scan-view="perdida" aria-pressed="false"><span>03</span><strong>Curva de pérdida</strong><small>¿Qué aprende la sonda?</small></button>
+                  <button type="button" class="scan-control" data-scan-view="prediccion" aria-pressed="false"><span>04</span><strong>Casos nuevos</strong><small>¿Dónde falla?</small></button>
+                </div>
+              </div>
+              <div class="scan-display">
+                <div class="scan-display-head"><span>VISTA ESQUEMÁTICA</span><span class="visual-live"><i></i> DEMO LOCAL</span></div>
+                <svg id="scanSvg" viewBox="0 0 520 260" role="img" aria-label="Esquema de cambios de representación a lo largo de capas internas">
+                  <defs><pattern id="scanGrid" width="26" height="26" patternUnits="userSpaceOnUse"><path d="M 26 0 L 0 0 0 26" fill="none" stroke="#3b5064" stroke-width=".7"/></pattern><linearGradient id="scanLine" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0ce83"/><stop offset="1" stop-color="#7fe5c4"/></linearGradient></defs>
+                  <rect width="520" height="260" fill="url(#scanGrid)" opacity=".46"/>
+                  <g data-scan-visual="capas"><text x="30" y="45" fill="#c5d9e2" font-size="12">una entrada: texto o imagen</text><path d="M35 127 H486" stroke="#5c7888" stroke-width="3" stroke-dasharray="5 9"/><rect x="35" y="95" width="62" height="64" rx="12" fill="#24514f" stroke="#7bdabc"/><rect x="117" y="95" width="62" height="64" rx="12" fill="#2e5158" stroke="#83c7bd"/><rect x="199" y="95" width="62" height="64" rx="12" fill="#345363" stroke="#89c2d6"/><rect x="281" y="95" width="62" height="64" rx="12" fill="#3c4f68" stroke="#a4b5e4"/><rect x="363" y="95" width="62" height="64" rx="12" fill="#494669" stroke="#b8a1f0"/><rect x="445" y="95" width="62" height="64" rx="12" fill="#574368" stroke="#c8a6f1"/><g fill="#e4f1f1" font-size="14" text-anchor="middle"><text x="66" y="134">1</text><text x="148" y="134">6</text><text x="230" y="134">12</text><text x="312" y="134">18</text><text x="394" y="134">24</text><text x="476" y="134">28</text></g><text x="31" y="190" fill="#96adbd" font-size="11">estados intermedios del decoder · capas 1 … 28</text><text x="31" y="213" fill="#9de3cd" font-size="11">inspección: magnitudes y similitudes, no una causa demostrada</text></g>
+                  <g data-scan-visual="mapa" hidden><path d="M48 213 H485 M48 213 V27" stroke="#64798c" stroke-width="1"/><text x="479" y="232" fill="#91a8b8" font-size="11">eje 1</text><text x="15" y="35" fill="#91a8b8" font-size="11">eje 2</text><ellipse cx="167" cy="101" rx="90" ry="57" fill="#6ccfb438" stroke="#71d9ba73"/><ellipse cx="368" cy="156" rx="97" ry="57" fill="#ab91ef30" stroke="#af99ef73"/><g fill="#83e6c5"><circle cx="110" cy="88" r="7"/><circle cx="145" cy="105" r="7"/><circle cx="175" cy="72" r="7"/><circle cx="209" cy="111" r="7"/></g><g fill="#b8a2fb"><circle cx="315" cy="153" r="7"/><circle cx="355" cy="128" r="7"/><circle cx="385" cy="174" r="7"/><circle cx="422" cy="150" r="7"/></g><g fill="none" stroke-width="2.5"><rect x="122" y="130" width="14" height="14" stroke="#83e6c5"/><rect x="180" y="124" width="14" height="14" stroke="#83e6c5"/><rect x="331" y="175" width="14" height="14" stroke="#b8a2fb"/><rect x="405" y="186" width="14" height="14" stroke="#b8a2fb"/></g><text x="127" y="38" fill="#a4efd1" font-size="12">grupo A</text><text x="359" y="95" fill="#d1c0ff" font-size="12">grupo B</text></g>
+                  <g data-scan-visual="perdida" hidden><path d="M60 215 H478 M60 215 V31" stroke="#64798c" stroke-width="1"/><text x="385" y="239" fill="#a2b5c5" font-size="11">vueltas de entrenamiento →</text><text x="18" y="32" fill="#a2b5c5" font-size="11">pérdida</text><path d="M70 55 C105 62 111 105 145 98 S190 140 220 143 S260 176 294 172 S346 191 390 187 S433 196 463 190" fill="none" stroke="url(#scanLine)" stroke-width="4" stroke-linecap="round"/><circle cx="70" cy="55" r="6" fill="#f0ce83"/><circle cx="463" cy="190" r="6" fill="#86dfbf"/><text x="80" y="44" fill="#efd69e" font-size="12">inicio</text><text x="401" y="176" fill="#a4efd1" font-size="12">después</text></g>
+                  <g data-scan-visual="prediccion" hidden><rect x="35" y="82" width="130" height="90" rx="15" fill="#283f4e" stroke="#65bfa7"/><rect x="195" y="82" width="130" height="90" rx="15" fill="#273f53" stroke="#83b6d9"/><rect x="355" y="82" width="130" height="90" rx="15" fill="#3e3759" stroke="#ad96e8"/><path d="M168 128 H190 M328 128 H350" stroke="#9eb9c6" stroke-width="2"/><path d="m185 123 6 5-6 5 m160-10 6 5-6 5" fill="none" stroke="#9eb9c6" stroke-width="2"/><text x="58" y="116" fill="#a8ead0" font-size="13">ejemplo nuevo</text><text x="57" y="139" fill="#d2e2e8" font-size="11">texto / imagen</text><text x="228" y="116" fill="#b9daf0" font-size="13">embedding</text><text x="222" y="139" fill="#d2e2e8" font-size="11">Qwen congelado</text><text x="384" y="116" fill="#dbccff" font-size="13">predicción</text><text x="389" y="139" fill="#d2e2e8" font-size="11">sonda entrenada</text></g>
+                </svg>
+                <div class="scan-caption"><strong id="scanTitle">Capas internas</strong><p id="scanDescription">La inspección sigue estadísticas de estados intermedios para una entrada a lo largo de las 28 capas del decoder. Describe cambios; no demuestra qué los causa.</p><div class="scan-question"><span>PREGUNTA PARA EL LAB</span><span id="scanQuestion">¿Qué cambia entre capas y qué permanece estable para el mismo ejemplo?</span></div></div>
+              </div>
+            </div>
+            <div class="tomo-footer"><p>Los dibujos de arriba son esquemas. En Streamlit podrás inspeccionar capas reales, el mapa PCA de embeddings, la curva de pérdida y las predicciones de tus ejemplos.</p><a class="button button-primary" href="#lab/tomografia">Probar tomografía en Streamlit →</a></div>
+          </section>
+
+          <section class="section" id="casos" aria-labelledby="casosTitle">
+            <div class="section-heading"><div><p class="eyebrow">05 / APLICACIONES CON DATOS PÚBLICOS</p><h2 id="casosTitle">De las posiciones a decisiones</h2><p>Usa páginas públicas, reales y sintéticas, para clasificar, encontrar vecinos y comparar imágenes con descripciones.</p></div><span class="section-stamp">DOS MÓDULOS</span></div>
+            <div class="application-grid">
+              <article class="application-card company-card"><div class="application-top"><span class="application-icon">♧</span><span>CASO EMPRESARIAL</span></div><h3>Clasificar páginas</h3><p>Con 51 páginas públicas, reales y sintéticas, de 10 tipos, clasificamos cada una por el centro vectorial más cercano. La prueba deja fuera la página evaluada al calcular centros (leave-one-out).</p><div class="application-flow"><span>Página pública</span><span aria-hidden="true">→</span><span>Embedding</span><span aria-hidden="true">→</span><span>Centro más cercano</span></div><a class="button button-outline" href="#lab/caso_empresa">Abrir caso empresarial →</a></article>
+              <article class="application-card compare-card"><div class="application-top"><span class="application-icon">▧</span><span>COMPARADOR MULTIMODAL</span></div><h3>Varias imágenes, una pregunta</h3><p>Carga varias imágenes y añade texto. Mira sus posiciones en PCA 3D, el triángulo A/B/C y los vecinos ordenados por similitud calculada en el espacio original.</p><div class="application-flow"><span>Imágenes + texto</span><span aria-hidden="true">→</span><span>PCA 3D</span><span aria-hidden="true">→</span><span>Vecinos exactos</span></div><a class="button button-outline" href="#lab/comparador">Abrir comparador →</a></article>
+            </div>
+            <div class="real-tree-shell" aria-labelledby="realTreeTitle">
+              <div class="real-tree-head"><div><p class="eyebrow">ÁRBOL DE VECINOS · EMBEDDINGS CALCULADOS</p><h3 id="realTreeTitle">Sigue las relaciones entre páginas</h3><p>Elige una página raíz. Sus ocho vecinos más próximos se agrupan por tipo conocido; cada cifra es un coseno calculado con los vectores de estas páginas.</p></div><a class="button button-quiet button-small" href="#lab/caso_empresa">Ver vecinos en 3D →</a></div>
+              <div class="real-tree-controls"><label for="treeRootSelect">Página raíz</label><select id="treeRootSelect" disabled><option>Cargando 51 páginas…</option></select><span id="treeStatus" role="status">Leyendo vectores locales…</span></div>
+              <div id="realTree" class="real-tree"><div class="tree-loading">Preparando el árbol con vectores calculados…</div></div>
+              <p class="real-tree-credit">Muestra pública: <a href="https://huggingface.co/datasets/ilsilfverskiold/ocr-benchmark" target="_blank" rel="noopener noreferrer">OCR Benchmark</a>. Fuentes: <a href="https://huggingface.co/datasets/getomni-ai/ocr-benchmark" target="_blank" rel="noopener noreferrer">OmniAI (MIT)</a>, <a href="https://huggingface.co/datasets/jsdnrs/ICDAR2019-SROIE" target="_blank" rel="noopener noreferrer">SROIE (CC BY 4.0)</a> y <a href="https://huggingface.co/datasets/ethanbradley/synfintabs" target="_blank" rel="noopener noreferrer">SynFinTabs (MIT)</a>. Las puntuaciones usan vectores de imagen de 2048 dimensiones.</p>
+            </div>
+            <div class="tree-explainer"><div class="tree-kicker">CÓMO LEER EL ÁRBOL Y EL MAPA 3D</div><p>El coseno selecciona los ocho vecinos más cercanos a la raíz; las ramas agrupan esos vecinos por su tipo conocido. El mapa 3D permite ver mezclas entre tipos, pero puede deformar distancias. La puntuación en el espacio original decide el orden de cercanía.</p></div>
+          </section>
+
+          <section class="section" id="practicas" aria-labelledby="practicasTitle">
+            <div class="section-heading"><div><p class="eyebrow">06 / DEL MAPA AL LABORATORIO</p><h2 id="practicasTitle">Cinco pruebas para hacer hoy</h2><p>Abre cada módulo de Streamlit local, prueba una variación y registra lo que cambió.</p></div><a class="button button-outline lab-link" href="#lab/inicio">Abrir laboratorio →</a></div>
+            <div class="practice-grid" id="practiceGrid"></div>
+            <div class="lab-help"><div><strong>¿No abre Streamlit?</strong><p>El catálogo funciona solo. Inicia la app local con el lanzador; Kratos aporta la GPU por SSH. El código GPU está en <code>/datos/workspaces/personal/conferencias/EmbedingMultimodales</code> para seguirlo en VS Code.</p></div><code>./abrir-lab.sh</code><button class="icon-button" id="copyTunnel" title="Copiar comando de inicio" aria-label="Copiar comando de inicio">Copiar</button></div>
+          </section>
+
+          <section class="section" id="bitacora" aria-labelledby="bitacoraTitle">
+            <div class="section-heading"><div><p class="eyebrow">07 / TU CUADERNO</p><h2 id="bitacoraTitle">Anota lo que captaste</h2><p>Escribe ideas, preguntas o hallazgos. Exporta la bitácora y compártela para que podamos replicar tus pruebas.</p></div><span class="section-stamp">GUARDADO LOCAL</span></div>
+            <div class="notebook-grid">
+              <form id="noteForm" class="note-form">
+                <div class="form-top"><span class="form-icon">✎</span><h3>Nueva nota</h3></div>
+                <div class="form-row"><label for="noteType">Tipo</label><select id="noteType" required><option value="idea">Idea que capté</option><option value="pregunta">Pregunta</option><option value="hallazgo">Hallazgo de una prueba</option></select></div>
+                <div class="form-row"><label for="noteConcept">Concepto relacionado</label><select id="noteConcept"><option value="">General</option></select></div>
+                <div class="form-row"><label for="noteText">Escríbelo con tus palabras</label><textarea id="noteText" rows="5" maxlength="4000" required placeholder="Creo que una imagen y una frase cercanas tienen vectores con direcciones similares…"></textarea></div>
+                <div class="form-row"><label for="noteNext">Qué quiero probar después <span>(opcional)</span></label><input id="noteNext" maxlength="500" placeholder="Cambiar la consulta y comparar los primeros resultados"></div>
+                <button class="button button-primary" type="submit">Guardar nota <span aria-hidden="true">→</span></button>
+                <p class="form-help">Este cuaderno permanece en el navegador de este equipo. Descárgalo para conservarlo o compartirlo.</p>
+              </form>
+              <div class="notes-panel"><div class="notes-head"><div><h3>Mis notas <span id="noteCount">0</span></h3><p>Tu hilo de aprendizaje</p></div><div class="export-actions"><button id="exportMd" class="button button-quiet button-small" type="button">↓ Markdown</button><button id="exportJson" class="button button-quiet button-small" type="button">↓ JSON</button></div></div><div id="notesList" class="notes-list"></div></div>
+            </div>
+          </section>
+
+          <section class="section" id="glosario" aria-labelledby="glosarioTitle">
+            <div class="section-heading"><div><p class="eyebrow">08 / CONSULTA RÁPIDA</p><h2 id="glosarioTitle">Glosario de bolsillo</h2><p>Definiciones breves para volver a ellas mientras experimentas.</p></div></div>
+            <div class="glossary-grid" id="glossaryGrid"></div>
+          </section>
+          <footer class="footer"><span>ATLAS MULTIMODAL · cuaderno local de aprendizaje</span><span>Streamlit local · GPU de Kratos por SSH</span></footer>
+        </div>
+        <section class="lab-view" id="labView" aria-labelledby="labTitle" hidden>
+          <div class="lab-view-header">
+            <div class="lab-view-heading">
+              <a class="lab-back" id="labBack" href="#inicio"><span aria-hidden="true">←</span> Volver al atlas</a>
+              <p class="eyebrow">LABORATORIO LOCAL · GPU EN KRATOS</p>
+              <h1 id="labTitle" tabindex="-1">Laboratorio multimodal</h1>
+              <p id="labDescription">Elige un experimento y observa sus resultados en Streamlit.</p>
+            </div>
+            <nav class="lab-module-nav" aria-label="Módulos del laboratorio">
+              <a href="#lab/inicio" class="lab-module-link">Inicio</a>
+              <a href="#lab/aritmetica" class="lab-module-link">Vectores A/B/C</a>
+              <a href="#lab/tomografia" class="lab-module-link">Tomografía</a>
+              <a href="#lab/caso_empresa" class="lab-module-link">Caso empresarial</a>
+              <a href="#lab/comparador" class="lab-module-link">Comparador</a>
+            </nav>
+          </div>
+          <div class="lab-frame-wrap">
+            <p class="lab-frame-status" id="labFrameStatus" role="status">Cargando Streamlit local…</p>
+            <iframe id="labFrame" title="Laboratorio multimodal en Streamlit" loading="eager" referrerpolicy="same-origin" allow="clipboard-write"></iframe>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog id="conceptDialog" class="concept-dialog"><div class="dialog-card"><button id="closeDialog" class="dialog-close" aria-label="Cerrar concepto">×</button><div id="dialogContent"></div></div></dialog>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
