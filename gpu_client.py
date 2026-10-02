@@ -23,6 +23,13 @@ class GPUClientError(RuntimeError):
     """Error de conexión, inferencia o respuesta inválida de la API GPU."""
 
 
+def _is_finite_number(value: Any) -> bool:
+    try:
+        return isinstance(value, (int, float)) and math.isfinite(value)
+    except OverflowError:
+        return False
+
+
 def encode_image(image_bytes: bytes) -> str:
     """Codifica los bytes de una imagen para el campo `image_base64`."""
     if not image_bytes:
@@ -143,7 +150,7 @@ class GPUClient:
                     raise GPUClientError(f"El vector {position} tiene una dimensión inválida.")
                 try:
                     numeric = [float(value) for value in vector]
-                except (TypeError, ValueError) as exc:
+                except (TypeError, ValueError, OverflowError) as exc:
                     raise GPUClientError(f"El vector {position} contiene datos no numéricos.") from exc
                 if not all(math.isfinite(value) for value in numeric):
                     raise GPUClientError(f"El vector {position} contiene valores no finitos.")
@@ -170,9 +177,12 @@ class GPUClient:
                 raise GPUClientError("La inspección devolvió capas desordenadas.")
             for field in ("rms", "mean", "std"):
                 value = entry.get(field)
-                if not isinstance(value, (int, float)) or not math.isfinite(value):
+                if not _is_finite_number(value):
                     raise GPUClientError(f"La capa {expected} no tiene {field} válido.")
             delta = entry.get("delta_cos")
-            if expected > 1 and (not isinstance(delta, (int, float)) or not math.isfinite(delta)):
+            if expected == 1:
+                if "delta_cos" not in entry or delta is not None:
+                    raise GPUClientError("La capa 1 debe tener coseno consecutivo nulo.")
+            elif not _is_finite_number(delta):
                 raise GPUClientError(f"La capa {expected} no tiene coseno consecutivo válido.")
         return data

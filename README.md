@@ -86,6 +86,22 @@ print(cos(consulta, imagenes))
 
 `embed.py` devuelve vectores normalizados; por eso el producto punto equivale a similitud coseno. **Qwen3-VL-Embedding-2B crea vectores; no genera respuestas de chat.** Una futura fase de charla con respuestas generadas requeriría otro modelo, como Qwen3-VL-Instruct.
 
+## Pruebas del cliente sin GPU
+
+Con el entorno local de Python 3.12 ya preparado y `requests` disponible:
+
+```bash
+uv run --offline --no-sync python -m unittest discover -s tests -v
+```
+
+Las pruebas usan `unittest` de Python y respuestas HTTP simuladas; no necesitan
+dependencias de prueba adicionales, GPU, túnel SSH, servicios, pesos ni datasets.
+Sustituyen el transporte HTTP y bloquean conexiones y consultas DNS durante cada
+prueba. Comprueban `/health`, lotes y orden de embeddings, limpieza de entradas e
+instrucciones, errores HTTP/JSON/timeout, dimensiones, valores no finitos y las
+28 capas de `/inspect`. Esto valida el contrato del cliente, no la inferencia real
+ni una integración de extremo a extremo con la GPU.
+
 ## Fuentes técnicas
 
 - [Repositorio oficial de Qwen3-VL-Embedding](https://github.com/QwenLM/Qwen3-VL-Embedding)
