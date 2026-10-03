@@ -218,19 +218,40 @@ def render_layer_scan(client: GPUClient) -> None:
         selected = st.selectbox("Imagen para inspeccionar", sample_names, key="scan_sample")
         uploaded = st.file_uploader("O sube una imagen", type=["jpg", "jpeg", "png", "webp"],
                                     key="scan_upload")
-    if st.button("Inspeccionar texto e imagen", type="primary", key="scan_run"):
+    run_scan = st.button("Inspeccionar texto e imagen", type="primary", key="scan_run")
+    # Restore only after preparing the same request successfully. Even an
+    # unexpected error or interruption must leave the previous scan inactive.
+    saved = st.session_state.pop("tomografia_scans", None)
+    try:
+        image_bytes = uploaded.getvalue() if uploaded else (ROOT / "samples" / selected).read_bytes()
+        compact_image = prepare_scan_image(image_bytes)
+        phrase = phrase.strip()
+        request = (phrase, hashlib.sha256(compact_image).hexdigest(), client.base_url)
+    except (GPUClientError, OSError, ValueError, Image.DecompressionBombError) as exc:
+        st.error(str(exc))
+        return
+    if not run_scan and saved and saved.get("request") == request:
+        # Retries, changed inputs and legacy results remain invalidated.
+        st.session_state["tomografia_scans"] = saved
+    if run_scan:
         try:
-            image_bytes = uploaded.getvalue() if uploaded else (ROOT / "samples" / selected).read_bytes()
-            compact_image = prepare_scan_image(image_bytes)
             scans = {}
             with st.spinner("Kratos recorre las capas; puede tardar unos segundos…"):
-                if phrase.strip():
-                    scans["Texto"] = client.inspect({"text": phrase.strip()})
+                if phrase:
+                    scans["Texto"] = client.inspect({"text": phrase})
                 scans["Imagen"] = client.inspect({"image_base64": encode_image(compact_image)})
-            st.session_state["tomografia_scans"] = scans
+            models = {label: result.get("model") if isinstance(result.get("model"), str) else None
+                      for label, result in scans.items()}
+            if len({model for model in models.values() if model}) > 1:
+                raise GPUClientError("El modelo cambió durante la inspección. Vuelve a intentarlo.")
+            # Publish both modalities together, keeping only identity the API supplied.
+            st.session_state["tomografia_scans"] = {
+                "request": request, "scans": scans, "models": models,
+            }
         except (GPUClientError, OSError) as exc:
             st.error(str(exc))
-    scans = st.session_state.get("tomografia_scans")
+    saved = st.session_state.get("tomografia_scans")
+    scans = saved["scans"] if saved and saved.get("request") == request else None
     if scans:
         metrics = st.columns(len(scans))
         for column, (label, result) in zip(metrics, scans.items()):

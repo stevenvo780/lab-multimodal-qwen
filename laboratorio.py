@@ -259,8 +259,9 @@ def matrix_tab(client: GPUClient, images: list[LabItem], query_instruction: str)
         )
         st.caption("Cada instrucción se aplica solo a las consultas. Las imágenes se codifican sin instrucción de búsqueda.")
     queries = text_items(query_text, prefix="Consulta")
-    key = fingerprint(queries, images, query_instruction, compare, alternative)
+    key = fingerprint(client.base_url, queries, images, query_instruction, compare, alternative)
     if st.button("Calcular matriz", type="primary", key="matrix_run"):
+        st.session_state.pop("matrix_result", None)
         if not queries or not images:
             st.error("Escribe una frase y selecciona al menos una imagen.")
         else:
@@ -275,9 +276,10 @@ def matrix_tab(client: GPUClient, images: list[LabItem], query_instruction: str)
                             raise GPUClientError("Escribe la segunda instrucción para compararlas.")
                         other_queries = embed_items(client, queries, alternative)
                         comparison = other_queries @ image_vectors.T
-                    st.session_state["matrix_result"] = {
+                    result = {
                         "key": key, "scores": scores, "comparison": comparison,
                     }
+                st.session_state["matrix_result"] = result
             except GPUClientError as exc:
                 st.error(str(exc))
     result = show_stale_result("matrix_result", key)
@@ -327,8 +329,9 @@ def search_tab(client: GPUClient, images: list[LabItem], documents: list[LabItem
         if not (exclude_self and query_image and item.label == query_image.label)
     ] + documents
     top_k = count_slider("Resultados a mostrar", len(candidates), "search_top_k")
-    key = fingerprint(query, candidates, query_instruction, top_k)
+    key = fingerprint(client.base_url, query, candidates, query_instruction, top_k)
     if st.button("Buscar", type="primary", key="search_run"):
+        st.session_state.pop("search_result", None)
         if not query.api_item():
             st.error("Escribe texto o elige una imagen para la consulta.")
         elif not candidates:
@@ -339,9 +342,10 @@ def search_tab(client: GPUClient, images: list[LabItem], documents: list[LabItem
                     query_vector = embed_items(client, [query], query_instruction)[0]
                     candidate_vectors = embed_items(client, candidates, "")
                     scores = candidate_vectors @ query_vector
-                    st.session_state["search_result"] = {
+                    result = {
                         "key": key, "ranked": ranked_results(scores, candidates, top_k),
                     }
+                st.session_state["search_result"] = result
             except GPUClientError as exc:
                 st.error(str(exc))
     result = show_stale_result("search_result", key)
@@ -376,8 +380,9 @@ def arithmetic_tab(client: GPUClient, images: list[LabItem], documents: list[Lab
         c = arithmetic_input("C", images, "montaña")
     candidates = images + documents
     top_k = count_slider("Candidatos a mostrar", len(candidates), "arithmetic_top_k")
-    key = fingerprint(a, b, c, candidates, top_k)
+    key = fingerprint(client.base_url, a, b, c, candidates, top_k)
     if st.button("Probar aritmética", type="primary", key="arithmetic_run"):
+        st.session_state.pop("arithmetic_result", None)
         if any(not item.api_item() for item in (a, b, c)):
             st.error("A, B y C necesitan texto, imagen o ambos.")
         elif not candidates:
@@ -392,7 +397,7 @@ def arithmetic_tab(client: GPUClient, images: list[LabItem], documents: list[Lab
                         raise GPUClientError("A − B + C produjo un vector casi nulo; cambia las entradas.")
                     composite /= magnitude
                     scores = vectors[3:] @ composite
-                    st.session_state["arithmetic_result"] = {
+                    result = {
                         "key": key,
                         "ranked": ranked_results(scores, candidates, top_k),
                         "magnitude": magnitude,
@@ -400,6 +405,7 @@ def arithmetic_tab(client: GPUClient, images: list[LabItem], documents: list[Lab
                         "ac": float(vectors[0] @ vectors[2]),
                         "triad": vectors[:3].copy(),
                     }
+                st.session_state["arithmetic_result"] = result
             except GPUClientError as exc:
                 st.error(str(exc))
     result = show_stale_result("arithmetic_result", key)
@@ -467,8 +473,9 @@ def projection_tab(client: GPUClient, images: list[LabItem], documents: list[Lab
                               min(8, max_neighbors), key="projection_neighbors")
     min_dist = st.slider("Separación mínima de UMAP", 0.0, 0.9, 0.15, 0.05,
                          key="projection_min_dist")
-    key = fingerprint(items, neighbors, min_dist)
+    key = fingerprint(client.base_url, items, neighbors, min_dist)
     if st.button("Proyectar colección", type="primary", key="projection_run"):
+        st.session_state.pop("projection_result", None)
         if len(items) < 4:
             st.error("Selecciona al menos cuatro elementos entre imágenes y textos.")
         else:
@@ -495,13 +502,14 @@ def projection_tab(client: GPUClient, images: list[LabItem], documents: list[Lab
                     similarity = vectors @ vectors.T
                     np.fill_diagonal(similarity, -np.inf)
                     first, second = np.unravel_index(int(np.argmax(similarity)), similarity.shape)
-                    st.session_state["projection_result"] = {
+                    result = {
                         "key": key, "pca_points": pca_points,
                         "pca_variance": float(pca.explained_variance_ratio_.sum()),
                         "umap_points": umap_points, "umap_error": umap_error,
                         "nearest": (items[int(first)].label, items[int(second)].label,
                                     float(similarity[first, second])),
                     }
+                st.session_state["projection_result"] = result
             except GPUClientError as exc:
                 st.error(str(exc))
     result = show_stale_result("projection_result", key)

@@ -6,6 +6,7 @@ La proyección 3D es una ayuda visual, no otra métrica del modelo.
 
 from __future__ import annotations
 
+import hashlib
 import io
 import json
 from collections import Counter
@@ -245,6 +246,19 @@ def classify(vector: np.ndarray, images: np.ndarray, documents: list[dict]) -> l
                   key=lambda item: item[1], reverse=True)
 
 
+def _classification_key(picture: bytes, client: GPUClient, images: np.ndarray,
+                        documents: list[dict]) -> tuple[str, str]:
+    """Identifica la imagen enviada y el contexto que determina su clasificación."""
+    context = hashlib.sha256(json.dumps({
+        "api_url": client.base_url,
+        "labels": [doc["label"] for doc in documents],
+        "shape": images.shape,
+        "dtype": images.dtype.str,
+    }, sort_keys=True).encode("utf-8"))
+    context.update(images.tobytes())
+    return hashlib.sha256(picture).hexdigest(), context.hexdigest()
+
+
 def layer_chart(scans: dict) -> go.Figure:
     figure = go.Figure()
     for modality, scan in scans.items():
@@ -366,16 +380,32 @@ def render_enterprise_case(client: GPUClient) -> None:
         st.markdown("#### Prueba una imagen tuya")
         upload = st.file_uploader("Imagen de un documento", type=["jpg", "jpeg", "png", "webp"],
                                   key="enterprise_upload")
-        if upload and st.button("Clasificar imagen nueva", type="primary", key="enterprise_predict"):
+        # Solo restauramos el resultado tras validar de nuevo la misma entrada.
+        # Así incluso una interrupción al preparar la imagen invalida el anterior.
+        prediction = st.session_state.pop("enterprise_prediction", None)
+        picture = None
+        prediction_key = None
+        if upload:
             try:
                 picture = web_image(upload.getvalue())
+                prediction_key = _classification_key(picture, client, images, documents)
+            except (OSError, ValueError, GPUClientError, Image.DecompressionBombError) as exc:
+                st.error(str(exc))
+        if prediction and prediction_key is not None and prediction[0] == prediction_key:
+            st.session_state["enterprise_prediction"] = prediction
+        if (upload and st.button("Clasificar imagen nueva", type="primary", key="enterprise_predict")
+                and picture is not None):
+            # Un reintento fallido no debe dejar visible el éxito anterior.
+            st.session_state.pop("enterprise_prediction", None)
+            try:
                 vector = unit_matrix(client.embed([{"image_base64": encode_image(picture)}]))[0]
-                st.session_state["enterprise_prediction"] = (upload.name, picture,
-                                                               classify(vector, images, documents))
+                st.session_state["enterprise_prediction"] = (
+                    prediction_key, picture, classify(vector, images, documents),
+                )
             except (OSError, ValueError, GPUClientError) as exc:
                 st.error(str(exc))
         prediction = st.session_state.get("enterprise_prediction")
-        if prediction and upload and prediction[0] == upload.name:
+        if prediction and prediction_key is not None and prediction[0] == prediction_key:
             st.image(prediction[1], width=280)
             best_label, best_score = prediction[2][0]
             in_sample_floor = min(row["cosine"] for row in outcomes)
