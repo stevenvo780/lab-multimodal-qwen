@@ -303,6 +303,8 @@ def render_comparator(client: GPUClient) -> None:
     st.title("Comparador multimodal · colección en 3D")
     st.caption("Qwen3-VL-Embedding-2B en kratos · vectores de 2048 dimensiones · cálculos y gráficos locales")
     st.info("El triángulo A/B/C conserva exactamente sus relaciones en 2048D. El mapa PCA resume toda la colección en tres coordenadas y puede deformar distancias y vecindades.")
+    previous_result = st.session_state.pop("comparador_result", None)
+    previous_query = st.session_state.pop("comparador_query_result", None)
     try:
         items = _inputs()
     except GPUClientError as exc:
@@ -315,30 +317,35 @@ def render_comparator(client: GPUClient) -> None:
                                     help="Vacía usa la instrucción predeterminada del modelo.")
         if st.button("Vaciar caché de embeddings", key="comparador_clear_cache"):
             st.session_state.pop("comparador_embedding_cache", None)
-            st.session_state.pop("comparador_result", None)
-            st.session_state.pop("comparador_query_result", None)
+            previous_result = previous_query = None
             st.info("La caché de esta sesión quedó vacía.")
 
     signature = _collection_signature(items, client, instruction)
+    if previous_result:
+        if previous_result["signature"] == signature:
+            st.session_state["comparador_result"] = previous_result
+            if previous_query:
+                st.session_state["comparador_query_result"] = previous_query
+        else:
+            st.info("Cambiaste la colección o la instrucción. Pulsa «Calcular colección y mapa» para actualizar los gráficos.")
     if st.button("Calcular colección y mapa", type="primary", key="comparador_calculate"):
+        st.session_state.pop("comparador_result", None)
+        st.session_state.pop("comparador_query_result", None)
         try:
             with st.spinner("Kratos calcula los embeddings nuevos; PCA corre en este equipo…"):
                 matrix = _embed_cached(client, items, instruction)
                 points, explained = _pca_3d(matrix)
-                st.session_state["comparador_result"] = {
+                result = {
                     "signature": signature, "matrix": matrix,
                     "points": points, "explained": explained,
                 }
+            st.session_state["comparador_result"] = result
         except (GPUClientError, OSError, ValueError) as exc:
             st.error(str(exc))
 
     result = st.session_state.get("comparador_result")
     if not result:
         return
-    if result["signature"] != signature:
-        st.info("Cambiaste la colección o la instrucción. Pulsa «Calcular colección y mapa» para actualizar los gráficos.")
-        return
-
     matrix = result["matrix"]
     st.header("1 · Toda la colección en PCA 3D")
     st.plotly_chart(_pca_figure(result["points"], items), width="stretch")
@@ -361,6 +368,7 @@ def render_comparator(client: GPUClient) -> None:
     query: np.ndarray | None = None
     excluded: int | None = None
     if source == "Elemento de la colección":
+        st.session_state.pop("comparador_query_result", None)
         selected = st.selectbox("Elemento", range(len(items)),
                                 format_func=lambda index: f"{items[index].label} · {items[index].modality}",
                                 key="comparador_selected")
@@ -369,6 +377,7 @@ def render_comparator(client: GPUClient) -> None:
         query = matrix[selected]
         excluded = selected if exclude_self else None
     else:
+        previous_query = st.session_state.pop("comparador_query_result", None)
         query_text = st.text_input("Texto de la nueva consulta (opcional)", "",
                                    max_chars=MAX_TEXT_CHARS, key="comparador_query_text")
         query_upload = st.file_uploader("Imagen de la nueva consulta (opcional)",
@@ -381,23 +390,27 @@ def render_comparator(client: GPUClient) -> None:
             return
         query_item = CompareItem("Consulta", query_text.strip(), query_image)
         query_signature = query_item.content_key(client, instruction)
+        if previous_query:
+            if previous_query["signature"] == query_signature:
+                st.session_state["comparador_query_result"] = previous_query
+            else:
+                st.info("La consulta cambió. Pulsa «Calcular nueva consulta» para actualizar vecinos.")
         if st.button("Calcular nueva consulta", key="comparador_query_calculate"):
+            st.session_state.pop("comparador_query_result", None)
             if not query_item.payload():
                 st.error("Escribe texto, sube una imagen o usa ambos en la nueva consulta.")
             else:
                 try:
                     with st.spinner("Kratos calcula el vector de la consulta…"):
-                        query = _embed_cached(client, [query_item], instruction)[0]
+                        vector = _embed_cached(client, [query_item], instruction)[0]
                     st.session_state["comparador_query_result"] = {
-                        "signature": query_signature, "vector": query,
+                        "signature": query_signature, "vector": vector,
                     }
                 except (GPUClientError, OSError, ValueError) as exc:
                     st.error(str(exc))
         saved = st.session_state.get("comparador_query_result")
         if saved and saved["signature"] == query_signature:
             query = saved["vector"]
-        elif saved:
-            st.info("La consulta cambió. Pulsa «Calcular nueva consulta» para actualizar vecinos.")
 
     count = len(items) - (1 if excluded is not None else 0)
     top_k = st.slider("Vecinos a mostrar", 1, min(20, count), min(5, count),
